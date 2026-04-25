@@ -1,28 +1,33 @@
 from __future__ import annotations
 
-from pelican import contents, signals
+from typing import cast
+
 from pelican.generators import ArticlesGenerator
 
-DEFAULT_LINK_TEXT = "Continue \u2192"
+from pelican import contents, signals
+
+DEFAULT_LINK_TEXT = "Continue →"
 DEFAULT_LINK_FORMAT = '<a class="summary-link" href="{url}">{text}</a>'
 DEFAULT_TRANSLATIONS: dict[str, str] = {
-    "en": "Continue \u2192",
-    "zh-tw": "\u7e7c\u7e8c\u95b1\u8b80 \u2192",
-    "zh": "\u7e7c\u7e8c\u95b1\u8b80 \u2192",
-    "ja": "\u7d9a\u304d\u3092\u8aad\u3080 \u2192",
+    "en": "Continue →",  # 英文
+    "zh-tw": "繼續閱讀 →",  # 繁體中文（台灣）
+    "zh": "繼續閱讀 →",  # 中文（泛用）
+    "ja": "続きを読む →",  # 日文
 }
 
 
 def _resolve_link_text(article: contents.Article) -> str:
     explicit = article.settings.get("SUMMARY_LINK")
     if explicit is not None:
-        return explicit
+        return cast(str, explicit)
 
     translations: dict[str, str] = {
         **DEFAULT_TRANSLATIONS,
         **article.settings.get("SUMMARY_LINK_TRANSLATIONS", {}),
     }
-    lang: str = getattr(article, "lang", None) or article.settings.get("DEFAULT_LANG", "en")
+    lang: str = getattr(article, "lang", None) or article.settings.get(
+        "DEFAULT_LANG", "en"
+    )
     return translations.get(lang, DEFAULT_LINK_TEXT)
 
 
@@ -71,4 +76,4 @@ def _run(generators: list) -> None:
 
 
 def register() -> None:
-    signals.all_generators_finalized.connect(_run)
+    signals.content_object_init.connect(_insert_summary_link)
