@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from typing import cast
 
 from pelican.generators import ArticlesGenerator
@@ -61,11 +62,16 @@ def _insert_summary_link(article: contents.Article) -> None:
 
     summary = article._update_content(summary, article.get_siteurl())
 
-    if hasattr(article, "default_status"):
-        article.metadata["summary"] = summary
-    else:
-        article._summary = summary
+    article._summary = summary
+    article.metadata["summary"] = summary
     article.has_summary = True
+
+    # `Content.get_summary` is `@memoized`. Earlier handlers on the same signal
+    # (e.g. render_math) may have cached the pre-link value. Drop just this
+    # article's entry so the writer sees the updated summary.
+    get_summary = getattr(article, "get_summary", None)
+    if isinstance(get_summary, functools.partial):
+        get_summary.cache.pop((article, article.get_siteurl()), None)
 
 
 def _run(generators: list) -> None:
@@ -76,4 +82,4 @@ def _run(generators: list) -> None:
 
 
 def register() -> None:
-    signals.content_object_init.connect(_insert_summary_link)
+    signals.all_generators_finalized.connect(_run)

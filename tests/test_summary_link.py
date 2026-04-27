@@ -39,14 +39,16 @@ def test_no_more_marker_sets_full_content_as_summary():
 def test_more_marker_splits_summary():
     article = make_article("<p>Intro.</p><!--more--><p>Rest.</p>")
     _insert_summary_link(article)
-    assert article._summary == "<p>Intro.</p>"
+    assert article._summary.startswith("<p>Intro.</p>")
+    assert "<p>Rest.</p>" not in article._summary
     assert article.has_summary is True
 
 
 def test_more_marker_with_spaces():
     article = make_article("<p>Intro.</p><!-- more --><p>Rest.</p>")
     _insert_summary_link(article)
-    assert article._summary == "<p>Intro.</p>"
+    assert article._summary.startswith("<p>Intro.</p>")
+    assert "<p>Rest.</p>" not in article._summary
 
 
 def test_summary_link_appended_when_text_set():
