@@ -1,6 +1,6 @@
 [project]
 name = "pelican-summary-link"
-version = "0.2.1"
+version = "0.2.2"
 description = "Pelican plugin to append a configurable link to article summaries."
 readme = "README.md"
 requires-python = ">=3.11"

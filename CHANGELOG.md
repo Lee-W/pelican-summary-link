@@ -1,3 +1,9 @@
+## 0.2.2 (2026-04-27)
+
+### Fix
+
+- keep summary modifications visible without slowing builds
+
 ## 0.2.1 (2026-04-25)
 
 ### Fix
